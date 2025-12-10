@@ -102,5 +102,24 @@
                 person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well
             });
         </script>
+        <!-- Firebase Core -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+
+<!-- Firebase Messaging -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+   apiKey: "AIzaSyD8Q-Ru_QGobJ_VbOW31karDMj6r3GGCdE",
+  authDomain: "scanbell-ar.firebaseapp.com",
+  projectId: "scanbell-ar",
+  storageBucket: "scanbell-ar.firebasestorage.app",
+  messagingSenderId: "1093927523954",
+  appId: "1:1093927523954:web:3cc412e7a98e27c05bd4eb"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+</script>
+
     </body>
 </html>
