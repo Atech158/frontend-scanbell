@@ -18,7 +18,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Bell, Download, QrCode, Phone, PhoneOff, PhoneIncoming, Settings, History, Shield, Clock, User, LogOut, RefreshCw, Copy, Video, VideoOff, Mic, MicOff, X, Check, Loader2, Ban, Trash2 } from "lucide-react";
-import { messaging } from "./firebase"; 
+import { messaging } from "firebase"; 
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
