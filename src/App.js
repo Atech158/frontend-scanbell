@@ -35,12 +35,20 @@ const useAuth = () => {
   const sendFCMToken = async (userId) => {
     try {
       const permission = await Notification.requestPermission();
-      if (permission !== "granted") return;
+      if (permission !== "granted") {
+        console.warn("Notification permission not granted");
+        return;
+      }
 
    const token = await messaging.getToken({
   vapidKey: "BM3H8HzY06bp_-x6FgfQXVRJHXeTiwqMxBK7r26ptGBg-SSHXa-B33tOzdxfGFAPfyHHsFgeXLSgF4285MpnyTo",
   serviceWorkerRegistration: await navigator.serviceWorker.ready
 });
+
+      if (!token) {
+        console.warn("Failed to get FCM token");
+        return;
+      }
 
       // expose token to global scope for third-party scripts that expect `fcmtoken`
       try {
@@ -49,11 +57,16 @@ const useAuth = () => {
         // ignore if window is not writable in some environments
       }
 
-      await axios.post(
-        `${API}/save-token`,
-        { userId, token },
-        { withCredentials: true }
-      );
+      try {
+        await axios.post(
+          `${API}/save-token`,
+          { userId, fcmToken: token },
+          { withCredentials: true }
+        );
+      } catch (axiosErr) {
+        console.error("Failed to save token:", axiosErr.response?.data || axiosErr.message);
+        throw axiosErr;
+      }
     } catch (err) {
       console.error("FCM Token error:", err);
     }
