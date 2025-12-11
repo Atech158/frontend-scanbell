@@ -46,7 +46,7 @@ const useAuth = () => {
 
       await axios.post(
         `${API}/save-token`,
-        { userId, token },
+        { userId, fcmtoken },
         { withCredentials: true }
       );
     } catch (err) {
