@@ -42,11 +42,16 @@ const useAuth = () => {
   serviceWorkerRegistration: await navigator.serviceWorker.ready
 });
 
-
+      // expose token to global scope for third-party scripts that expect `fcmtoken`
+      try {
+        window.fcmtoken = token;
+      } catch (e) {
+        // ignore if window is not writable in some environments
+      }
 
       await axios.post(
         `${API}/save-token`,
-        {userId,fcmtoken },
+        { userId, token },
         { withCredentials: true }
       );
     } catch (err) {
@@ -61,9 +66,14 @@ const useAuth = () => {
       });
 
       setUser(response.data);
-
-      // Ask for FCM permission after login
-      sendFCMToken(response.data._id);
+      // send FCM token to backend for this user (if available)
+      try {
+        const uid = response.data?.id || response.data?._id;
+        if (uid) await sendFCMToken(uid);
+      } catch (e) {
+        // don't block auth flow on FCM errors
+        console.error("sendFCMToken error:", e);
+      }
     } catch (e) {
       setUser(null);
     } finally {
