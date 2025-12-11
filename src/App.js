@@ -23,14 +23,6 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 const AUTH_URL = "https://auth.emergentagent.com";
 
-useEffect(() => {
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-      .register("/firebase-messaging-sw.js")
-      .then(() => console.log("Service Worker registered"))
-      .catch((err) => console.error("SW registration failed", err));
-  }
-}, []);
 
 
 const useAuth = () => {
@@ -45,10 +37,12 @@ const useAuth = () => {
       const permission = await Notification.requestPermission();
       if (permission !== "granted") return;
 
-      const token = await messaging.getToken({
-        vapidKey:
-          "BM3H8HzY06bp_-x6FgfQXVRJHXeTiwqMxBK7r26ptGBg-SSHXa-B33tOzdxfGFAPfyHHsFgeXLSgF4285MpnyTo",
-      });
+   const token = await messaging.getToken({
+  vapidKey: "BM3H8HzY06bp_-x6FgfQXVRJHXeTiwqMxBK7r26ptGBg-SSHXa-B33tOzdxfGFAPfyHHsFgeXLSgF4285MpnyTo",
+  serviceWorkerRegistration: await navigator.serviceWorker.ready
+});
+
+
 
       await axios.post(
         `${API}/save-token`,
@@ -254,6 +248,16 @@ const Dashboard = ({ user, onLogout }) => {
       console.error("Error fetching data:", e);
     }
   }, []);
+
+  useEffect(() => {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+      .register("/firebase-messaging-sw.js")
+      .then(() => console.log("Service Worker registered"))
+      .catch((err) => console.error("SW registration failed", err));
+  }
+}, []);
+
 
   useEffect(() => {
     fetchData();
