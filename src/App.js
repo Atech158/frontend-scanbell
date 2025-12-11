@@ -23,6 +23,16 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 const AUTH_URL = "https://auth.emergentagent.com";
 
+useEffect(() => {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+      .register("/firebase-messaging-sw.js")
+      .then(() => console.log("Service Worker registered"))
+      .catch((err) => console.error("SW registration failed", err));
+  }
+}, []);
+
+
 const useAuth = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
