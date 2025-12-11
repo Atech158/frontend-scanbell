@@ -18,23 +18,26 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Bell, Download, QrCode, Phone, PhoneOff, PhoneIncoming, Settings, History, Shield, Clock, User, LogOut, RefreshCw, Copy, Video, VideoOff, Mic, MicOff, X, Check, Loader2, Ban, Trash2 } from "lucide-react";
-import { messaging } from "firebase"; 
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 const AUTH_URL = "https://auth.emergentagent.com";
 
-// Auth Context
 const useAuth = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Firebase Messaging (script version)
+  const messaging = firebase.messaging();
+
   const sendFCMToken = async (userId) => {
     try {
       const permission = await Notification.requestPermission();
       if (permission !== "granted") return;
 
       const token = await messaging.getToken({
-        vapidKey: "BM3H8HzY06bp_-x6FgfQXVRJHXeTiwqMxBK7r26ptGBg-SSHXa-B33tOzdxfGFAPfyHHsFgeXLSgF4285MpnyTo"
+        vapidKey:
+          "BM3H8HzY06bp_-x6FgfQXVRJHXeTiwqMxBK7r26ptGBg-SSHXa-B33tOzdxfGFAPfyHHsFgeXLSgF4285MpnyTo",
       });
 
       await axios.post(
@@ -49,8 +52,14 @@ const useAuth = () => {
 
   const checkAuth = useCallback(async () => {
     try {
-      const response = await axios.get(`${API}/auth/me`, { withCredentials: true });
+      const response = await axios.get(`${API}/auth/me`, {
+        withCredentials: true,
+      });
+
       setUser(response.data);
+
+      // Ask for FCM permission after login
+      sendFCMToken(response.data._id);
     } catch (e) {
       setUser(null);
     } finally {
@@ -60,7 +69,9 @@ const useAuth = () => {
 
   const login = () => {
     const redirectUrl = `${window.location.origin}/dashboard`;
-    window.location.href = `${AUTH_URL}/?redirect=${encodeURIComponent(redirectUrl)}`;
+    window.location.href = `${AUTH_URL}/?redirect=${encodeURIComponent(
+      redirectUrl
+    )}`;
   };
 
   const logout = async () => {
@@ -75,6 +86,7 @@ const useAuth = () => {
 
   return { user, loading, checkAuth, login, logout, setUser };
 };
+
 
 // Landing Page
 const LandingPage = ({ onLogin }) => {
