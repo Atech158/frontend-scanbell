@@ -23,6 +23,8 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 const AUTH_URL = "https://auth.emergentagent.com";
 
+axios.defaults.withCredentials = true;
+
 
 
 const useAuth = () => {
