@@ -21,3 +21,16 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# environment variables
+.env
+
+# Python virtual environments (backend)
+../backend-scanbell-main/venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# distribution
+dist/
