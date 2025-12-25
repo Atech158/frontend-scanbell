@@ -18,6 +18,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Bell, Download, QrCode, Phone, PhoneOff, PhoneIncoming, Settings, History, Shield, Clock, User, LogOut, RefreshCw, Copy, Video, VideoOff, Mic, MicOff, X, Check, Loader2, Ban, Trash2 } from "lucide-react";
+import { getMessagingToken, setupForegroundMessageHandler } from "@/firebase";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -207,7 +208,11 @@ const Dashboard = ({ user, onLogout }) => {
       ]);
       setDoorbellSettings(settingsRes.data);
       setQrSettings(qrRes.data);
-      setCallHistory(historyRes.data);
+      
+      // Ensure callHistory is always an array
+      const historyData = historyRes.data || [];
+      setCallHistory(Array.isArray(historyData) ? historyData : []);
+      
       setCallStats(statsRes.data);
     } catch (e) {
       console.error("Error fetching data:", e);
@@ -217,6 +222,46 @@ const Dashboard = ({ user, onLogout }) => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Register FCM token
+  useEffect(() => {
+    if (!user) return;
+
+    const registerFCMToken = async () => {
+      try {
+        const token = await getMessagingToken();
+        if (token) {
+          console.log("FCM Token obtained:", token.substring(0, 20) + "...");
+          // Register token with backend
+          await axios.post(
+            `${API}/notifications/register-token`,
+            { token, platform: "web" },
+            { withCredentials: true }
+          );
+          console.log("FCM token registered with backend");
+        } else {
+          console.warn("Failed to get FCM token");
+        }
+      } catch (error) {
+        console.error("Error registering FCM token:", error);
+      }
+    };
+
+    registerFCMToken();
+
+    // Setup foreground message handler
+    setupForegroundMessageHandler((payload) => {
+      console.log("Foreground notification received:", payload);
+      if (payload.data?.type === "doorbell_ring" && !incomingCall) {
+        setIncomingCall({
+          visitorName: payload.data.visitor_name || "Unknown Visitor",
+          callId: payload.data.call_id,
+          roomId: user.id
+        });
+        toast.info("Someone is at your door!", { duration: 10000 });
+      }
+    });
+  }, [user, incomingCall]);
 
   // Poll for incoming calls
   useEffect(() => {
