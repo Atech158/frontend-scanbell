@@ -971,14 +971,9 @@ const Dashboard = ({ user, onLogout }) => {
                   <CardDescription>These IPs cannot ring your doorbell</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {doorbellSettings.blocked_ips?.length === 0 ? (
-                    <div className="empty-state small">
-                      <Shield className="w-8 h-8 text-gray-300" />
-                      <p>No blocked callers</p>
-                    </div>
-                  ) : (
+                  {doorbellSettings.blocked_ips && Array.isArray(doorbellSettings.blocked_ips) && doorbellSettings.blocked_ips.length > 0 ? (
                     <div className="blocked-list">
-                      {doorbellSettings.blocked_ips?.map((ip) => (
+                      {doorbellSettings.blocked_ips.map((ip) => (
                         <div key={ip} className="blocked-item">
                           <span>{ip}</span>
                           <Button
@@ -990,6 +985,11 @@ const Dashboard = ({ user, onLogout }) => {
                           </Button>
                         </div>
                       ))}
+                    </div>
+                  ) : (
+                    <div className="empty-state small">
+                      <Shield className="w-8 h-8 text-gray-300" />
+                      <p>No blocked callers</p>
                     </div>
                   )}
                 </CardContent>
